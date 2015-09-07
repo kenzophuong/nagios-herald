@@ -1,0 +1,8 @@
+*.swp
+*.pyc
+.DS_STORE
+etc/config.yml
+mail.html
+*.gem
+.idea
+Gemfile.lock

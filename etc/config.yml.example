@@ -1,0 +1,15 @@
+# define the FQDN of servers we call on to provide context in notifications
+servers:
+  ganglia: ganglia.example.com
+  graphite: graphite.example.com
+splunk:
+  url: https://splunk.example.com:8089/services/search/jobs
+  username: splunkuser
+  password: splunkpass
+elasticsearch:
+  url: http://logstash.example.com:9200
+  frontend_url: https://kibana.example.com/#/dashboard/file/logstash.json?from=%{from}&to=%{to}&query=%{query}
+  result_field_truncate: 200
+  num_results: 10
+logfile: /tmp/nagios-herald.log
+formatter_dir: /usr/local/nagios-herald-formatters

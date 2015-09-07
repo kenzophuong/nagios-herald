@@ -1,0 +1,82 @@
+#!/usr/bin/env ruby
+
+require 'choice'
+require 'app_conf'
+
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
+require 'nagios-herald'
+
+program_name = File.basename($0)
+
+Choice.options do
+  header ""
+  header "#{program_name} is used to generate images from Ganglia graphs."
+  header ""
+  header "It takes one or more hostnames and a single metric to build the appropriate URI(s) from which to generate images."
+  header "The script outputs the full path for each of the images that have been written."
+  header ""
+
+  option :config_file do
+    short "-c"
+    long  "--config-file"
+    desc  "Specify an alternate location for the config file."
+    default File.expand_path(File.join(File.dirname(__FILE__), '..', 'etc', 'config.yml'))
+  end
+
+  option :hosts, :required => true do
+    short "-h"
+    long  "--host *HOST"
+    desc  "The FQDN of the host required to look up a metric/image in Ganglia. Specify multiple hosts with multiple \'-h\' arguments."
+  end
+
+  option :metric, :required => true do
+    short "-m"
+    long  "--metric"
+    desc  "The name of the metric we want to see."
+  end
+
+  option :path do
+    short "-p"
+    long  "--path"
+    desc  "An optional path in which to write the image files."
+    desc  "DEFAULT: /tmp"
+    default "/tmp"
+  end
+
+  option :range do
+    short "-r"
+    long  "--range"
+    desc  "The range of time for which the graph should look back."
+    desc  "Acceptable values are the same as thouse used by Ganglia (i.e '8hours', '8h, '1day', '1d', '3weeks', '3w')"
+    desc  "DEFAULT: 8h (8 hours)"
+    default "8h"
+  end
+
+  footer ""
+  footer "EXAMPLES"
+  footer "--------"
+  footer "1. Passing a single hostname and metric to #{program_name}:"
+  footer ""
+  footer "#{program_name} -h mysql01.example.com -m part_max_used"
+  footer ""
+  footer "2. Passing multiple hostnames and a metric to #{program_name}:"
+  footer ""
+  footer "#{program_name} -h mysql01.example.com -h memcached01.example.com -m disk_free"
+  footer ""
+  footer "3. Including an optional time range (12 hours):"
+  footer ""
+  footer "#{program_name} -h mysql01.example.com -h memcached01.example.com -m disk_free -r 12h"
+  footer ""
+end
+
+options = Choice.choices
+
+# Load the config
+abort("Config file not found #{options.config_file}") unless File.exists? options.config_file
+config = AppConf.new
+config.load( options.config_file )
+
+ganglia = NagiosHerald::Helpers::GangliaGraph.new
+
+image_paths = ganglia.get_graphs( options.hosts, options.metric, options.path, options.range )
+puts image_paths.join( ", " ) if image_paths
