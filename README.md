@@ -92,3 +92,4 @@ To configure Nagios to use ``nagios-herald`` for notifications, see the [Nagios 
 
 ``nagios-herald`` supports Icinga too! Follow the instructions [here](/docs/config.md#icinga-support) to make it so.
 
+# nagios-herald
